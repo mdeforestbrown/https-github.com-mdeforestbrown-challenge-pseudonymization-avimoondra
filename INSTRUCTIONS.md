@@ -44,6 +44,8 @@ The outputDir will be the folder where two CSVs will be written (over overwritte
 - `pii.csv`: Contains PII data (first name, last name, date of birth) with Pseudonymized IDs (PIDs). The output file will have columns: pid,firstName,lastName,dateOfBirth
 - `health.csv`: Contains health data (weight, blood group, age) with Pseudonymized IDs. The output file will have columns: pid,weight,bloodGroup,age
 
+You can use --stream or --no-stream to control runtime behavior.
+
 ## Running Tests
 
 Run the test suite:
@@ -59,6 +61,8 @@ pnpm test:watch
 ## Future Improvements
 
 - Add data validation rules for blood type
-- Add batch/stream processing for larger files, with progress logs if streaming or batching
+- Add progress logs for streaming
+- Remove in-mem approach in favor of streaming (just including both for demo purposes)
 - Better CLI flags (e.g. help, configuration options for batching or streaming, etc.)
 - Package as executable for easier distribution and use
+- Add linter/formatter for codebase

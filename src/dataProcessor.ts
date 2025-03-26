@@ -1,6 +1,11 @@
 import { parse } from "csv-parse";
 import { stringify } from "csv-stringify";
-import { createReadStream, createWriteStream, existsSync, truncateSync } from "fs";
+import {
+  createReadStream,
+  createWriteStream,
+  existsSync,
+  truncateSync,
+} from "fs";
 import path from "path";
 import { pipeline } from "stream/promises";
 import { calculateAgeAsString } from "./ageCalculator";
@@ -15,8 +20,17 @@ export async function processPatientData({
   outputDir: string;
 }): Promise<void> {
   try {
-    const patients: PatientRecord[] = [];
+    // clear outputs
+    const piiDataPath = path.join(outputDir, "pii.csv");
+    if (existsSync(piiDataPath)) {
+      truncateSync(piiDataPath);
+    }
+    const healthDataPath = path.join(outputDir, "health.csv");
+    if (existsSync(healthDataPath)) {
+      truncateSync(healthDataPath);
+    }
 
+    // read input data
     const parser = createReadStream(inputFilePath).pipe(
       parse({
         columns: true,
@@ -24,7 +38,7 @@ export async function processPatientData({
         trim: true,
       })
     );
-
+    const patients: PatientRecord[] = [];
     for await (const record of parser) {
       patients.push({
         firstName: record["First name"],
@@ -36,9 +50,9 @@ export async function processPatientData({
     }
     console.log(`Read and parsed data from: ${inputFilePath}`);
 
+    // process data
     const piiData: PiiRecord[] = [];
     const healthData: HealthRecord[] = [];
-
     for (const patient of patients) {
       const pid = generatePid();
 
@@ -57,20 +71,12 @@ export async function processPatientData({
       });
     }
 
-    const piiDataPath = path.join(outputDir, "pii.csv");
-    if (existsSync(piiDataPath)) {
-      truncateSync(piiDataPath)
-    }
+    // write data out
     await pipeline(
       stringify(piiData, { header: true }),
       createWriteStream(piiDataPath)
     );
     console.log(`PII data written to: ${piiDataPath}`);
-
-    const healthDataPath = path.join(outputDir, "health.csv");
-    if (existsSync(healthDataPath)) {
-      truncateSync(healthDataPath)
-    }
     await pipeline(
       stringify(healthData, { header: true }),
       createWriteStream(healthDataPath)

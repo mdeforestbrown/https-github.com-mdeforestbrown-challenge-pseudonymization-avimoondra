@@ -1,4 +1,4 @@
-import { processPatientData } from "./dataProcessor";
+import { processPatientDataStream } from "./streamDataProcessor";
 import fs, { existsSync, truncateSync } from "fs";
 import path from "path";
 import { generatePid } from "./pidGenerator";
@@ -16,7 +16,7 @@ jest.mock("./pidGenerator", () => {
   };
 });
 
-describe("processPatientData", () => {
+describe.only("processPatientDataStream", () => {
   const testInputPath = path.join(
     __dirname,
     "__fixtures__",
@@ -36,17 +36,19 @@ describe("processPatientData", () => {
   });
 
   it("should process patient data and create PII and health CSV files", async () => {
-    await processPatientData({
+    await processPatientDataStream({
       inputFilePath: testInputPath,
       outputDir: testOutputDir,
     });
 
+    const piiFilePath = path.join(testOutputDir, "pii.csv");
     const piiFileContents = fs.readFileSync(piiFilePath, "utf-8");
     expect(piiFileContents).toBe(`pid,firstName,lastName,dateOfBirth
 TEST-PID-2,James,Lind,1716-10-04
 TEST-PID-3,Liz,Lime,1994-04-05
 `);
 
+    const healthFilePath = path.join(testOutputDir, "health.csv");
     const healthFileContents = fs.readFileSync(healthFilePath, "utf-8");
 
     // Note: seems like fake timers mess with node js file async ops, just calculate age inline (age requires freezing time in test context)

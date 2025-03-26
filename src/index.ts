@@ -3,12 +3,14 @@ import { existsSync } from "fs";
 
 import { Flags, Parser } from "@oclif/core";
 import path from "path";
+import { processPatientDataStream } from "./streamDataProcessor";
 
 async function main() {
   const { flags } = await Parser.parse(process.argv.slice(2), {
     flags: {
       inputFile: Flags.string({char: 'f', default: './sampleData/patients.csv'}),
       outputDir: Flags.string({char: 'o', default: './sampleData'}),
+      stream: Flags.boolean({char: 's', default: true, allowNo: true }),
     },
   });
 
@@ -22,10 +24,17 @@ async function main() {
       process.exit(1);
     }
 
-    await processPatientData({
-      inputFilePath: inputFile,
-      outputDir: flags.outputDir,
-    });
+    if (flags.stream) {
+      await processPatientDataStream({
+        inputFilePath: inputFile,
+        outputDir: flags.outputDir,
+      })
+    } else {
+      await processPatientData({
+        inputFilePath: inputFile,
+        outputDir: flags.outputDir,
+      });
+    }
   } catch (error) {
     console.error("Error:", error);
     process.exit(1);
