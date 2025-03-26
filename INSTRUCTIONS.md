@@ -5,8 +5,7 @@ This script processes patient data by splitting it into separate PII (Personally
 ## Features
 
 - Splits patient data into separate PII and health data files
-- Generates unique PIDs in the format XXX-XXX-XXX (where X is [1-9A-Z])
-- Calculates patient ages based on date of birth
+- Generates unique PIDs in the format XXX-XXX-XXX (where X is [1-9A-Z]) and includes them in each file so records can be cross referenced.
 
 ## Prerequisites
 
@@ -60,9 +59,10 @@ pnpm test:watch
 
 ## Future Improvements
 
-- Add data validation rules for blood type
-- Add progress logs for streaming
+- Add data validation/detection rules (e.g. for blood type)
 - Remove in-mem approach in favor of streaming (just including both for demo purposes)
+- Add progress logs for streaming
 - Better CLI flags (e.g. help, configuration options for batching or streaming, etc.)
 - Package as executable for easier distribution and use
 - Add linter/formatter for codebase
+- Consider a batching approach depending on parallel processing needs
